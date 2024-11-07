@@ -53,6 +53,9 @@ namespace UcobClears.AdvPlate
 
         private void OnAddonFinalize(AddonEvent type, AddonArgs args)
         {
+            addon = nint.Zero;
+            username = string.Empty;
+            server = string.Empty;
             RemoveNodeFromPlate(args.Addon);
         }
 
@@ -147,6 +150,9 @@ namespace UcobClears.AdvPlate
         public unsafe void Refresh(bool ignoreCache = false)
         {
             if (addon == nint.Zero || username == string.Empty || server == string.Empty) return;
+
+            var charCard = (AtkUnitBase*)addon;
+            if (!charCard->IsVisible) return;
 
             RemoveNodeFromPlate(addon);
             LoadFFlogs(addon, username, server, ignoreCache);
