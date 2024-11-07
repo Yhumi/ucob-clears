@@ -1,0 +1,12 @@
+{
+  "Author": "Yhumi",
+  "Name": "UCoB Clears",
+  "Punchline": "Show UCoB clears on adventure place.",
+  "Description": "Show UCoB clears on adventure place. /ucobclears for settings.",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "logs",
+    "ucob",
+    "clears"
+  ]
+}
