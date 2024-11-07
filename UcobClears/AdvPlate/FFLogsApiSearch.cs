@@ -120,6 +120,24 @@ namespace UcobClears.AdvPlate
             
             if (response != null)
             {
+                if (response.characterData.character == null)
+                {
+                    return new FFLogsStatus()
+                    {
+                        message = $"Character not found.",
+                        requestStatus = FFLogsRequestStatus.Failed
+                    };
+                }
+
+                if (HiddenLogs(response))
+                {
+                    return new FFLogsStatus()
+                    {
+                        message = $"Hidden logs.",
+                        requestStatus = FFLogsRequestStatus.Failed
+                    };
+                }
+
                 int totalKills =
                        (response.characterData?.character?.stormblood?.totalKills ?? 0)
                        + (response.characterData?.character?.shadowbringers?.totalKills ?? 0)
@@ -192,6 +210,13 @@ namespace UcobClears.AdvPlate
                 return null;
             }
         }
+    
+        private static bool HiddenLogs(FFLogsApiResponse_Data response)
+        {
+            if (response.characterData.character.stormblood.error != null && response.characterData.character.stormblood.error.ToLower().Contains("permission"))
+                return true;
+            return false;
+        }
     }
 
     internal class FFLogsApiBearerToken
@@ -230,5 +255,6 @@ namespace UcobClears.AdvPlate
     internal class FFLogsApiResponse_Encounter
     {
         public int? totalKills { get; set; } = 0;
+        public string? error { get; set; } = null;
     }
 }
