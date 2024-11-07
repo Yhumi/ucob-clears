@@ -107,9 +107,19 @@ namespace UcobClears.AdvPlate
 
             if (charCard->UldManager.NodeListCount <= 1)
                 return;
- 
-            var textNodeParent = charCard->UldManager.SearchNodeById(5)->GetAsAtkComponentNode();
-            var textNode = textNodeParent->GetComponent()->UldManager.SearchNodeById(3)->GetAsAtkTextNode();
+
+            AtkComponentNode* textNodeParent;
+            AtkTextNode* textNode;
+            try
+            {
+                textNodeParent = charCard->UldManager.SearchNodeById(5)->GetAsAtkComponentNode();
+                textNode = textNodeParent->GetComponent()->UldManager.SearchNodeById(3)->GetAsAtkTextNode();
+            }
+            catch (Exception e)
+            {
+                Svc.Log.Debug($"An error has occurred: {e.Message}");
+                return;
+            }
 
             FFLogsResponseNode = new TextNode
             {
