@@ -80,6 +80,8 @@ namespace UcobClears.AdvPlate
 
             if (response == null || ignoreCache)
             {
+                if (CachedResponses.ContainsKey($"{username}@{server}")) CachedResponses.Remove($"{username}@{server}");
+
                 Svc.Log.Debug($"Fetching data from FFLogs.");
                 var timeStarted = DateTime.Now;
                 try
@@ -147,7 +149,8 @@ namespace UcobClears.AdvPlate
 
             if (!value.timeFetched.HasValue) return null;
 
-            if (value.timeFetched.Value + TimeSpan.FromMinutes(P.Config.CacheValidityInMinutes) < DateTime.Now) return null;
+            if (value.timeFetched.Value + TimeSpan.FromMinutes(P.Config.CacheValidityInMinutes) < DateTime.Now)
+                return null;
 
             Svc.Log.Debug($"Valid cache found.");
 

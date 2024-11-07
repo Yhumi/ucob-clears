@@ -30,7 +30,8 @@ public unsafe class UcobClears : IDalamudPlugin
     internal WindowSystem ws;
     internal NativeController NativeController;
 
-    internal AdvPlateUI AdvPlateUI;
+    //internal AdvPlateUI AdvPlateUI;
+    internal AdvPlateController AdvPlateController;
 
     internal StyleModel Style;
     internal bool StylePushed = false;
@@ -45,9 +46,10 @@ public unsafe class UcobClears : IDalamudPlugin
 
         NativeController = new NativeController(pluginInterface);
 
-        AdvPlateUI = new();
+        //AdvPlateUI = new();
+        AdvPlateController = new();
         ws = new();
-        ws.AddWindow(AdvPlateUI);
+        //ws.AddWindow(AdvPlateUI);
         Config = P.Config;
         PluginUi = new();
 
@@ -83,7 +85,7 @@ public unsafe class UcobClears : IDalamudPlugin
 
         GenericHelpers.Safe(NativeController.Dispose);
 
-        AdvPlateUI.Dispose();
+        AdvPlateController.Dispose();
 
         ws?.RemoveAllWindows();
         ws = null!;

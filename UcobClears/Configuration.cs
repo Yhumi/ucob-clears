@@ -23,7 +23,7 @@ public class Configuration : IPluginConfiguration
         Svc.PluginInterface.SavePluginConfig(this);
         
         if (!skipReload)
-            P.AdvPlateUI.Refresh(ignoreCacheOnRefresh);
+            P.AdvPlateController.Refresh(ignoreCacheOnRefresh);
     }
 
     public static Configuration Load()
