@@ -47,6 +47,7 @@ public class PluginUI : Window, IDisposable
 
         string FFLogsAPI_ClientId = P.Config.FFLogsAPI_ClientId;
         string FFLogsAPI_ClientSecret = P.Config.FFLogsAPI_ClientSecret;
+        string Tomestone_APIKey = P.Config.Tomestone_APIKey;
         bool ShowErrorsOnPlate = P.Config.ShowErrorsOnPlate;
         int CacheValidityInMinutes = P.Config.CacheValidityInMinutes;
 
@@ -65,7 +66,14 @@ public class PluginUI : Window, IDisposable
             P.Config.FFLogsAPI_ClientSecret = FFLogsAPI_ClientSecret;
             P.Config.Save(true);
         }
-        
+
+        ImGui.Text("Tomestone API Key");
+        if (ImGui.InputText("###TomestoneAPI", ref Tomestone_APIKey, 150))
+        {
+            P.Config.Tomestone_APIKey = Tomestone_APIKey;
+            P.Config.Save(true);
+        }
+
         if (ImGui.Checkbox("Show Error Messages on Adventure Plate", ref ShowErrorsOnPlate))
         {
             P.Config.ShowErrorsOnPlate = ShowErrorsOnPlate;

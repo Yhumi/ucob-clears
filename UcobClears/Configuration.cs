@@ -14,6 +14,7 @@ public class Configuration : IPluginConfiguration
 
     public string FFLogsAPI_ClientId { get; set; } = string.Empty;
     public string FFLogsAPI_ClientSecret { get; set; } = string.Empty;
+    public string Tomestone_APIKey { get; set; } = string.Empty;
     public bool ShowErrorsOnPlate { get; set; } = false;
     public int CacheValidityInMinutes { get; set; } = 15;
 

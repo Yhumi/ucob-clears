@@ -89,6 +89,21 @@ namespace UcobClears.AdvPlate
         private async void LoadFFlogs(nint addonInt, string server, string name, bool ignoreCache = false)
         {
             var fflogsResponse = await FFLogsApiSearch.GetUcobLogs_v2(server, name, ignoreCache);
+
+            if (fflogsResponse.checkProg.HasValue && fflogsResponse.checkProg.Value)
+            {
+                Svc.Log.Debug($"Checking progression logs...");
+                var tomestoneResponse = await FFLogsApiSearch.GetUcobProg(server, name);
+                if (tomestoneResponse != null)
+                {
+                    if (tomestoneResponse.encounters?.ultimateProgressionTarget?.name?.ToLower() == "ucob")
+                    {
+                        Svc.Log.Debug($"UCoB Prog Found, {tomestoneResponse.encounters?.ultimateProgressionTarget?.percent}");
+                        fflogsResponse.message += $" [{tomestoneResponse.encounters?.ultimateProgressionTarget?.percent}]";
+                    }
+                }
+            }
+
             Svc.Log.Debug($"{fflogsResponse.requestStatus.ToString()}: {fflogsResponse.message}");
             AddNodeToPlate(addonInt, fflogsResponse);
         }
