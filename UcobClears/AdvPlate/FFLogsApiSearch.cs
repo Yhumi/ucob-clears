@@ -80,8 +80,6 @@ namespace UcobClears.AdvPlate
 
             if (response == null || ignoreCache)
             {
-                if (CachedResponses.ContainsKey($"{username}@{server}")) CachedResponses.Remove($"{username}@{server}");
-
                 Svc.Log.Debug($"Fetching data from FFLogs.");
                 var timeStarted = DateTime.Now;
                 try
@@ -104,7 +102,8 @@ namespace UcobClears.AdvPlate
 
                         response = gqlResponse.Data;
                         response.timeFetched = timeStarted;
-                        CachedResponses.Add($"{username}@{server}", response);
+
+                        CachedResponses[$"{username}@{server}"] = response;
                     }
                 }
                 catch (Exception ex)
