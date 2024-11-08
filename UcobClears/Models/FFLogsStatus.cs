@@ -12,6 +12,7 @@ namespace UcobClears.Models
 
         public FFLogsRequestStatus requestStatus {  get; set; }
         public string message { get; set; }
+        public bool? checkProg { get; set; }
     }
 
     public enum FFLogsRequestStatus

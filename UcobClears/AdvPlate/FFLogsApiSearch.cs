@@ -35,6 +35,8 @@ namespace UcobClears.AdvPlate
         private static readonly string FFLOGS_API_ENDPOINT = "https://www.fflogs.com/api/v2";
         private static readonly string FFLOGS_API_OAUTH = "https://www.fflogs.com/oauth/token";
 
+        private static readonly string TOMESTONE_API = "https://tomestone.gg/api";
+
         private static FFLogsApiBearerToken? FFLOGS_TOKEN = null;
         private static DateTime? TOKEN_CREATED = null;
 
@@ -146,7 +148,8 @@ namespace UcobClears.AdvPlate
                 return new FFLogsStatus()
                 {
                     message = $"Total UCoB Kills: {totalKills}",
-                    requestStatus = FFLogsRequestStatus.Success
+                    requestStatus = FFLogsRequestStatus.Success,
+                    checkProg = totalKills == 0
                 };
             }
 
@@ -157,6 +160,39 @@ namespace UcobClears.AdvPlate
                 requestStatus = FFLogsRequestStatus.Failed,
                 message = "Null response."
             };
+        }
+
+        public static async Task<TomestoneApiResponse?> GetUcobProg(string username, string server)
+        {
+            if (String.IsNullOrEmpty(P.Config.Tomestone_APIKey)) return null;
+
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {P.Config.Tomestone_APIKey}");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{TOMESTONE_API}/character/profile/{server}/{username}");
+            Svc.Log.Debug(request.RequestUri?.ToString() ?? "");
+
+            try
+            {
+                var response = await client.SendAsync(request);
+                Svc.Log.Debug($"Tomestone: {response.StatusCode}");
+                if (!response.IsSuccessStatusCode) return null;
+
+                var json = await response.Content.ReadAsStringAsync();
+                var prog = JsonConvert.DeserializeObject<TomestoneApiResponse>(json);
+                if (json == null) return null;
+
+                Svc.Log.Debug($"Prog: {prog?.encounters?.ultimateProgressionTarget?.name} @ {prog?.encounters?.ultimateProgressionTarget?.percent}");
+                Svc.Log.Debug($"Prog: {prog?.encounters}");
+
+
+                return prog;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         private static FFLogsApiResponse_Data? GetCachedValue(string username, string server)
@@ -255,5 +291,22 @@ namespace UcobClears.AdvPlate
     {
         public int? totalKills { get; set; } = 0;
         public string? error { get; set; } = null;
+    }
+
+    internal class TomestoneApiResponse
+    {
+        public TomestoneApiResponse_Encounters? encounters { get; set; }
+    }
+
+    internal class TomestoneApiResponse_Encounters
+    {
+        public TomestoneApiResponse_UltimateProgressionTarget? ultimateProgressionTarget { get; set; }
+    }
+
+    internal class TomestoneApiResponse_UltimateProgressionTarget
+    {
+        public string? name { get; set; }
+        public float? rawPercent { get; set; }
+        public string? percent { get; set; }
     }
 }
