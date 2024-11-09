@@ -14,6 +14,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using UcobClears.Models;
+using UcobClears.RawInformation;
 
 namespace UcobClears.AdvPlate
 {
@@ -99,13 +100,44 @@ namespace UcobClears.AdvPlate
                     if (tomestoneResponse.encounters?.ultimateProgressionTarget?.name?.ToLower() == "ucob")
                     {
                         Svc.Log.Debug($"UCoB Prog Found, {tomestoneResponse.encounters?.ultimateProgressionTarget?.percent}");
-                        fflogsResponse.message += $" [{tomestoneResponse.encounters?.ultimateProgressionTarget?.percent}]";
+                        string progMessage = $"{tomestoneResponse.encounters?.ultimateProgressionTarget?.percent}";
+
+                        if (tomestoneResponse.encounters?.ultimateProgressionTarget?.percent?.Contains("P3") ?? false)
+                        {
+                            string? progPoint = TomestoneP3ProgMap(tomestoneResponse.encounters?.ultimateProgressionTarget?.percent!);
+                            if (progPoint != null)
+                            {
+                                progMessage += $" ({progPoint})";
+                            }
+                        }
+
+                        fflogsResponse.message += $" [{progMessage}]";
                     }
                 }
             }
 
             Svc.Log.Debug($"{fflogsResponse.requestStatus.ToString()}: {fflogsResponse.message}");
             AddNodeToPlate(addonInt, fflogsResponse);
+        }
+
+        private string? TomestoneP3ProgMap(string p3percent)
+        {
+            Svc.Log.Debug($"P3 Prog Found, checking prog point.");
+            try
+            {
+                var split = p3percent.Split('%');
+                var decimalPercentage = Convert.ToDecimal(split[0]);
+
+                var filteredDecimals = ConstantData.TomestoneProgPercentageMap?.Where(x => x.Value >= decimalPercentage).ToList() ?? null;
+                if (filteredDecimals == null) return null;
+
+                return filteredDecimals.Last().Key;
+            }
+            catch (Exception ex)
+            {
+                Svc.Log.Debug($"Could not process prog point from p3. {ex.Message}");
+                return null;
+            }
         }
 
         private unsafe void AddNodeToPlate(nint charCardnint, FFLogsStatus logsStatus)

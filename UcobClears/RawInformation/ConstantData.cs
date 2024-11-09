@@ -12,6 +12,7 @@ namespace UcobClears.RawInformation
     internal static class ConstantData
     {
         public static Dictionary<string, string>? ServerRegionMap;
+        public static Dictionary<string, decimal>? TomestoneProgPercentageMap;
 
         public static void Init()
         {
@@ -25,6 +26,18 @@ namespace UcobClears.RawInformation
             catch (Exception e)
             {
                 Svc.Log.Error($"Failed to load config from {Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName!, "RawInformation/Data/Region.json")}: {e}");
+            }
+
+            try
+            {
+                var tomestoneProgPercentage = Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName!, "RawInformation/Data/TomestoneProgPercentageMapping.json");
+                var tomestoneProgPercentageJson = File.ReadAllText(tomestoneProgPercentage);
+
+                TomestoneProgPercentageMap = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(tomestoneProgPercentageJson);
+            }
+            catch (Exception e)
+            {
+                Svc.Log.Error($"Failed to load config from {Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName!, "RawInformation/Data/TomestoneProgPercentageMapping.json")}: {e}");
             }
         }
     }
