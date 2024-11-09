@@ -128,7 +128,7 @@ namespace UcobClears.AdvPlate
                 var split = p3percent.Split('%');
                 var decimalPercentage = Convert.ToDecimal(split[0]);
 
-                var filteredDecimals = ConstantData.TomestoneProgPercentageMap?.Where(x => x.Value >= decimalPercentage).ToList() ?? null;
+                var filteredDecimals = ConstantData.TomestoneProgPercentageMap?.Where(x => x.Value > decimalPercentage).ToList() ?? null;
                 if (filteredDecimals == null) return null;
 
                 return filteredDecimals.Last().Key;
