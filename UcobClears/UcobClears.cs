@@ -14,6 +14,7 @@ using static FFXIVClientStructs.FFXIV.Client.UI.Misc.CharaView.Delegates;
 using UcobClears.AdvPlate;
 using UcobClears.RawInformation;
 using KamiToolKit;
+using UcobClears.PartyList;
 
 namespace UcobClears;
 
@@ -32,6 +33,7 @@ public unsafe class UcobClears : IDalamudPlugin
 
     //internal AdvPlateUI AdvPlateUI;
     internal AdvPlateController AdvPlateController;
+    internal PartyListController PartyListController;
 
     internal StyleModel Style;
     internal bool StylePushed = false;
@@ -44,6 +46,8 @@ public unsafe class UcobClears : IDalamudPlugin
         ConstantData.Init();
         P.Config = Configuration.Load();
 
+        LuminaData.Init();
+
         NativeController = new NativeController(pluginInterface);
 
         //AdvPlateUI = new();
@@ -52,6 +56,8 @@ public unsafe class UcobClears : IDalamudPlugin
         //ws.AddWindow(AdvPlateUI);
         Config = P.Config;
         PluginUi = new();
+
+        PartyListController = new();
 
         Svc.Commands.AddHandler(CommandName, new CommandInfo(OnCommand)
         {

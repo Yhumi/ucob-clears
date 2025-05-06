@@ -2,7 +2,10 @@ using Dalamud.Game.Addon.Events;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Utility;
 using ECommons.DalamudServices;
+using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using KamiToolKit.Extensions;
@@ -12,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using UcobClears.Models;
 using UcobClears.RawInformation;
@@ -47,7 +51,17 @@ namespace UcobClears.AdvPlate
         private void OnAddonSetup(AddonEvent type, AddonArgs args)
         {
             addon = args.Addon;
-            GetUserDetailsFromCard(args.Addon);
+            var setupArgs = args as AddonSetupArgs;
+
+            if (setupArgs == null)
+                return;
+
+            username = setupArgs.AtkValueSpan[29].GetValueAsString();
+            server = setupArgs.AtkValueSpan[32].GetValueAsString().Split('[')[0].Trim();
+
+            //GetUserDetailsFromCard(args.Addon);
+            if (username == null || server == null)
+                return;
 
             Task.Run(() => LoadFFlogs(args.Addon, username, server));
         }
@@ -74,10 +88,10 @@ namespace UcobClears.AdvPlate
                 if (charCard->UldManager.SearchNodeById(20)->IsVisible())
                 {
                     var atkValues = charCard->AtkValues;
-                    var usernameString = SeString.Parse(charCard->AtkValues[29].String).TextValue;
+                    var usernameString = charCard->AtkValues[29].String.AsDalamudSeString().TextValue;
                     Svc.Log.Debug(usernameString);
 
-                    var serverString = SeString.Parse(charCard->AtkValues[32].String).TextValue;
+                    var serverString = charCard->AtkValues[32].String.AsDalamudSeString().TextValue;
                     Svc.Log.Debug(serverString);
 
                     username = usernameString;
@@ -117,7 +131,7 @@ namespace UcobClears.AdvPlate
             }
 
             Svc.Log.Debug($"{fflogsResponse.requestStatus.ToString()}: {fflogsResponse.message}");
-            AddNodeToPlate(addonInt, fflogsResponse);
+            Svc.Framework.RunOnFrameworkThread(() => AddNodeToPlate(addonInt, fflogsResponse));
         }
 
         private string? TomestoneP3ProgMap(string p3percent)
@@ -171,6 +185,7 @@ namespace UcobClears.AdvPlate
             FFLogsResponseNode = new TextNode
             {
                 NodeID = 1000,
+                TextId = 1001,
                 NodeFlags = NodeFlags.Enabled | NodeFlags.Visible,
                 Size = new Vector2(textNodeParent->GetWidth(), textNodeParent->GetHeight()),
                 Position = new Vector2(textNodeParent->GetXFloat(), textNodeParent->GetYFloat() + textNodeParent->GetHeight()),
@@ -180,15 +195,58 @@ namespace UcobClears.AdvPlate
                 FontSize = 12,
                 LineSpacing = textNode->LineSpacing,
                 CharSpacing = textNode->CharSpacing,
-                TextFlags = TextFlags.MultiLine | (TextFlags)textNode->TextFlags,
-                Text = logsStatus.message,
+                TextFlags = TextFlags.MultiLine | TextFlags.AutoAdjustNodeSize | (TextFlags)textNode->TextFlags,
                 AlignmentType = AlignmentType.TopRight
             };
+
+            try
+            {
+                var textPayload = new TextPayload(logsStatus.message);
+                var seString = new SeString(textPayload);
+
+                Svc.Log.Debug(seString.GetText());
+                FFLogsResponseNode.Text = seString;
+            }
+            catch (Exception ex)
+            {
+                Svc.Log.Debug($"An error has occurred setting the text of the TextNode object: {ex.Message}");
+                return;
+            }
 
             Svc.Log.Debug($"Font: {FFLogsResponseNode.FontSize}");
             Svc.Log.Debug($"Attaching to Addon after Target Id: {((AtkResNode*)textNode)->NodeId}");
 
             P.NativeController.AttachToAddon(FFLogsResponseNode, charCard, (AtkResNode*)textNodeParent, KamiToolKit.Classes.NodePosition.AfterTarget);
+
+            //AtkTextNode* createdTextNode;
+            //try
+            //{
+            //    charCard->UldManager.UpdateDrawNodeList();
+
+            //    Svc.Log.Debug($"Finding NodeId 1000");
+
+            //    int idx1000 = 0;
+            //    for (int i = 0; i < charCard->UldManager.NodeListCount; i++)
+            //    {
+            //        var node = charCard->UldManager.NodeList[i];
+            //        Svc.Log.Debug(node->NodeId.ToString());
+            //        if (node->NodeId == 1000)
+            //            idx1000 = i;
+            //    }
+
+            //    createdTextNode = charCard->UldManager.NodeList[idx1000]->GetAsAtkTextNode();
+
+            //    if (createdTextNode == null)
+            //        Svc.Log.Debug($"Null node.");
+
+            //    Svc.Log.Debug($"Created text node: {createdTextNode->NodeId}. Setting text to {logsStatus.message}");
+            //    createdTextNode->SetText(logsStatus.message);
+            //}
+            //catch (Exception e)
+            //{
+            //    Svc.Log.Debug($"An error has occurred: {e.Message}");
+            //    return;
+            //}
         }
 
         private unsafe void RemoveNodeFromPlate(nint charCardnint)

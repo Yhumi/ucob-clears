@@ -23,9 +23,13 @@ namespace UcobClears.AdvPlate
             query($name: String, $server: String, $region: String) {
                 characterData{
                     character(name: $name, serverSlug: $server, serverRegion: $region) {
+                        dawntrailns: encounterRankings(encounterID: 1073, partition: -2)
                         dawntrail: encounterRankings(encounterID: 1073)
+                        endwalkerns: encounterRankings(encounterID: 1060, partition: -2)
                         endwalker: encounterRankings(encounterID: 1060)
+                        shadowbringersns: encounterRankings(encounterID: 1047, partition: 2)
                         shadowbringers: encounterRankings(encounterID: 1047)
+                        stormbloodns: encounterRankings(encounterID: 1039, partition: 2)
                         stormblood: encounterRankings(encounterID: 1039)
                     }
                 }
@@ -42,7 +46,7 @@ namespace UcobClears.AdvPlate
 
         private static Dictionary<string, FFLogsApiResponse_Data> CachedResponses = new Dictionary<string, FFLogsApiResponse_Data>();
 
-        public static async Task<FFLogsStatus> GetUcobLogs_v2(string username, string server, bool ignoreCache = false)
+        public static async Task<FFLogsStatus> GetUcobLogs_v2(string username, string server, bool ignoreCache = false, int? overwriteCacheValidity = null)
         {
             if (ignoreCache || FFLOGS_TOKEN == null || (TOKEN_CREATED.HasValue && TOKEN_CREATED.Value.AddSeconds(FFLOGS_TOKEN.expires_in) < DateTime.Now))
             {
@@ -78,7 +82,7 @@ namespace UcobClears.AdvPlate
             var graphQLClient = new GraphQLHttpClient(FFLOGS_API_ENDPOINT, new NewtonsoftJsonSerializer());
             graphQLClient.HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {FFLOGS_TOKEN.access_token}");
             
-            FFLogsApiResponse_Data? response = GetCachedValue(username, server);
+            FFLogsApiResponse_Data? response = GetCachedValue(username, server, overwriteCacheValidity);
 
             if (response == null || ignoreCache)
             {
@@ -140,16 +144,21 @@ namespace UcobClears.AdvPlate
                 }
 
                 int totalKills =
-                       (response.characterData?.character?.stormblood?.totalKills ?? 0)
+                       (response.characterData?.character?.stormbloodns?.totalKills ?? 0)
+                       + (response.characterData?.character?.stormblood?.totalKills ?? 0)
+                       + (response.characterData?.character?.shadowbringersns?.totalKills ?? 0)
                        + (response.characterData?.character?.shadowbringers?.totalKills ?? 0)
+                       + (response.characterData?.character?.endwalkerns?.totalKills ?? 0)
                        + (response.characterData?.character?.endwalker?.totalKills ?? 0)
+                       + (response.characterData?.character?.dawntrailns?.totalKills ?? 0)
                        + (response.characterData?.character?.dawntrail?.totalKills ?? 0);
 
                 return new FFLogsStatus()
                 {
                     message = $"Total UCoB Kills: {totalKills}",
                     requestStatus = FFLogsRequestStatus.Success,
-                    checkProg = totalKills == 0
+                    checkProg = totalKills == 0,
+                    kills = totalKills
                 };
             }
 
@@ -195,14 +204,15 @@ namespace UcobClears.AdvPlate
             }
         }
 
-        private static FFLogsApiResponse_Data? GetCachedValue(string username, string server)
+        private static FFLogsApiResponse_Data? GetCachedValue(string username, string server, int? overwriteCacheValidity)
         {
             var value = CachedResponses.GetValueOrDefault($"{username}@{server}");
             if (value == null) return null;
 
             if (!value.timeFetched.HasValue) return null;
 
-            if (value.timeFetched.Value + TimeSpan.FromMinutes(P.Config.CacheValidityInMinutes) < DateTime.Now)
+            int cacheMinutes = overwriteCacheValidity ?? P.Config.CacheValidityInMinutes;
+            if (value.timeFetched.Value + TimeSpan.FromMinutes(cacheMinutes) < DateTime.Now)
                 return null;
 
             Svc.Log.Debug($"Valid cache found.");
@@ -280,9 +290,13 @@ namespace UcobClears.AdvPlate
 
     internal class FFLogsApiResponse_Character
     {
+        public FFLogsApiResponse_Encounter? dawntrailns { get; set; }
         public FFLogsApiResponse_Encounter? dawntrail { get; set; }
+        public FFLogsApiResponse_Encounter? endwalkerns { get; set; }
         public FFLogsApiResponse_Encounter? endwalker { get; set; }
+        public FFLogsApiResponse_Encounter? shadowbringersns { get; set; }
         public FFLogsApiResponse_Encounter? shadowbringers { get; set; }
+        public FFLogsApiResponse_Encounter? stormbloodns { get; set; }
         public FFLogsApiResponse_Encounter? stormblood { get; set; }
 
     }

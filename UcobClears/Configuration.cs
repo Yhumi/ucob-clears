@@ -18,6 +18,14 @@ public class Configuration : IPluginConfiguration
     public bool ShowErrorsOnPlate { get; set; } = false;
     public int CacheValidityInMinutes { get; set; } = 15;
 
+    public bool UploadPartyClearsData { get; set; } = false;
+    public string UploadPartyDataUrl { get; set; } = string.Empty;
+    public string UploadPartyDataAPIKey { get; set; } = string.Empty;
+    public bool UseWebSocket { get; set; } = false;
+    public string WebSocketPort { get; set; } = "8080";
+    public int UploadPartyCacheValidityInMinutes { get; set; } = 30;
+
+
     // the below exist just to make saving less cumbersome
     public void Save(bool ignoreCacheOnRefresh = false, bool skipReload = false)
     {
