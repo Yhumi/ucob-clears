@@ -184,7 +184,7 @@ namespace UcobClears.AdvPlate
 
             FFLogsResponseNode = new TextNode
             {
-                NodeID = 1000,
+                NodeId = 1000,
                 TextId = 1001,
                 NodeFlags = NodeFlags.Enabled | NodeFlags.Visible,
                 Size = new Vector2(textNodeParent->GetWidth(), textNodeParent->GetHeight()),
@@ -216,7 +216,7 @@ namespace UcobClears.AdvPlate
             Svc.Log.Debug($"Font: {FFLogsResponseNode.FontSize}");
             Svc.Log.Debug($"Attaching to Addon after Target Id: {((AtkResNode*)textNode)->NodeId}");
 
-            P.NativeController.AttachToAddon(FFLogsResponseNode, charCard, (AtkResNode*)textNodeParent, KamiToolKit.Classes.NodePosition.AfterTarget);
+            P.NativeController.AttachNode(FFLogsResponseNode, (AtkResNode*)textNodeParent, KamiToolKit.Classes.NodePosition.AfterTarget);
 
             //AtkTextNode* createdTextNode;
             //try
@@ -259,7 +259,7 @@ namespace UcobClears.AdvPlate
             if (charCard == null)
                 return;
 
-            P.NativeController.DetachFromAddon(FFLogsResponseNode, charCard);
+            P.NativeController.DetachNode(FFLogsResponseNode);
         }
 
         public unsafe void Refresh(bool ignoreCache = false)

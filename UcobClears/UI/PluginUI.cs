@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using ECommons.ImGuiMethods;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace UcobClears.UI;
 

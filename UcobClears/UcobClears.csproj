@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Dalamud.NET.Sdk/13.0.0">
   <Import Project="Dalamud.Plugin.Bootstrap.targets" />
 
   <PropertyGroup>
-    <Version>1.2.3.0</Version>
+    <Version>1.2.3.1</Version>
     <Description>Show Ucob Clears in adventure plate.</Description>
     <PackageProjectUrl>https://github.com/Yhumi/ucob-clears</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
