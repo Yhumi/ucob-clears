@@ -1,21 +1,13 @@
-using Dalamud.Game.Addon.Events;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Utility;
 using ECommons.DalamudServices;
-using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using KamiToolKit.Extensions;
 using KamiToolKit.Nodes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 using UcobClears.Models;
 using UcobClears.RawInformation;
@@ -178,14 +170,11 @@ namespace UcobClears.AdvPlate
             }
             catch (Exception e)
             {
-                Svc.Log.Debug($"An error has occurred: {e.Message}");
+                Svc.Log.Debug($"An error has occurred: {e.Message}\n{e.StackTrace}");
                 return;
             }
-
             FFLogsResponseNode = new TextNode
             {
-                NodeId = 1000,
-                TextId = 1001,
                 NodeFlags = NodeFlags.Enabled | NodeFlags.Visible,
                 Size = new Vector2(textNodeParent->GetWidth(), textNodeParent->GetHeight()),
                 Position = new Vector2(textNodeParent->GetXFloat(), textNodeParent->GetYFloat() + textNodeParent->GetHeight()),
@@ -201,15 +190,12 @@ namespace UcobClears.AdvPlate
 
             try
             {
-                var textPayload = new TextPayload(logsStatus.message);
-                var seString = new SeString(textPayload);
-
-                Svc.Log.Debug(seString.GetText());
-                FFLogsResponseNode.Text = seString;
+                FFLogsResponseNode.Text = logsStatus.message;
             }
             catch (Exception ex)
             {
                 Svc.Log.Debug($"An error has occurred setting the text of the TextNode object: {ex.Message}");
+                Svc.Log.Debug($"{ex.StackTrace}");
                 return;
             }
 
