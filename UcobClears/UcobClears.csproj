@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="Dalamud.Plugin.Bootstrap.targets" />
+<Project Sdk="Dalamud.NET.Sdk/13.0.0">
 
   <PropertyGroup>
-    <Version>1.2.3.0</Version>
+    <Version>1.2.3.1</Version>
     <Description>Show Ucob Clears in adventure plate.</Description>
     <PackageProjectUrl>https://github.com/Yhumi/ucob-clears</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
@@ -57,13 +56,7 @@
     <ProjectReference Include="..\KamiToolKit\KamiToolKit.csproj" />
     <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="InteropGenerator.Runtime">
-      <HintPath>C:\Users\Nicole\AppData\Roaming\XIVLauncher\addon\Hooks\dev\InteropGenerator.Runtime.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
+    
   <ItemGroup>
     <None Update="RawInformation\Data\Region.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -74,7 +67,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="DalamudPackager" Version="12.0.0" />
+    <PackageReference Update="DalamudPackager" Version="13.0.0" />
   </ItemGroup>
 
     <Target Name="PackagePlugin" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
